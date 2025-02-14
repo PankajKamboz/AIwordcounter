@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Content Refinement</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            max-width: 600px;
+        }
+        textarea, input {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4285F4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Refine Your Content with Gemini AI</h2>
+    
+    <label><strong>Your Content:</strong></label>
+    <textarea id="contentBox" placeholder="Enter your content here..."></textarea>
+
+    <label><strong>Refinement Instructions:</strong></label>
+    <input type="text" id="instructions" placeholder="e.g., Make it engaging, Make it concise">
+
+    <button id="refineBtn" onclick="refineContent()">Refine with AI</button>
+
+    <script>
+        async function refineContent() {
+            const apiKey = "AIzaSyDmJwUNnI_reQOvQ7DqGEmgJ3hNxLazF18"; // Your API Key
+            const inputText = document.getElementById("contentBox").value;
+            const userInstructions = document.getElementById("instructions").value;
+            const refineBtn = document.getElementById("refineBtn");
+
+            if (!inputText.trim()) {
+                alert("Please enter some content.");
+                return;
+            }
+
+            if (!userInstructions.trim()) {
+                alert("Please enter instructions for refinement.");
+                return;
+            }
+
+            refineBtn.disabled = true;
+            refineBtn.textContent = "Refining...";
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateText?key=${apiKey}`;
+
+            const requestData = {
+                prompt: { 
+                    text: `Refine this content based on user instructions. Content: "${inputText}". Instruction: "${userInstructions}".`
+                },
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(requestData),
+                });
+
+                const data = await response.json();
+                const refinedText = data.candidates?.[0]?.output || "AI refinement failed. Try again.";
+
+                document.getElementById("contentBox").value = refinedText;
+            } catch (error) {
+                console.error("Error refining content:", error);
+                alert("Something went wrong. Please try again.");
+            }
+
+            refineBtn.disabled = false;
+            refineBtn.textContent = "Refine with AI";
+        }
+    </script>
+
+</body>
+</html>
